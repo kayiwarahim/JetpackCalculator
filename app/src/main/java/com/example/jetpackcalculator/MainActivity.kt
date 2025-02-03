@@ -59,7 +59,8 @@ fun CalculatorApp() {
                 listOf("7", "8", "9", "÷"),
                 listOf("4", "5", "6", "×"),
                 listOf("1", "2", "3", "-"),
-                listOf("0", ".", "=", "+")
+                listOf(".", "0", "=", "+"),
+                listOf("Clear", "Del") // Added "Del" button
             )
 
             buttons.forEach { row ->
@@ -74,11 +75,22 @@ fun CalculatorApp() {
                                     "=" -> {
                                         try {
                                             val expression = input
-                                                .replace('×', '*') // ✅ Correct usage
-                                                .replace('÷', '/') // ✅ Correct usage
+                                                .replace('×', '*')
+                                                .replace('÷', '/')
                                             result = evaluateExpression(expression)
                                         } catch (e: Exception) {
                                             result = "Error"
+                                        }
+                                    }
+                                    "Clear" -> {
+                                        input = "0"
+                                        result = ""
+                                    }
+                                    "Del" -> { // Delete last character
+                                        input = if (input.length > 1) {
+                                            input.dropLast(1)
+                                        } else {
+                                            "0"
                                         }
                                     }
                                     else -> {
