@@ -59,11 +59,11 @@ fun CalculatorApp() {
             verticalArrangement = Arrangement.Bottom
         ) {
             val buttons = listOf(
+                listOf("(", ")", "AC", "C"),
                 listOf("7", "8", "9", "÷"),
                 listOf("4", "5", "6", "×"),
                 listOf("1", "2", "3", "-"),
-                listOf(".", "0", "=", "+"),
-                listOf("Clear", "Del") // Added "Del" button
+                listOf(".", "0", "=", "+")
             )
 
             buttons.forEach { row ->
@@ -88,19 +88,33 @@ fun CalculatorApp() {
                                             result = "Error"
                                         }
                                     }
-                                    "Clear" -> {
+                                    "AC" -> {
                                         input = "0"
                                         result = ""
                                         lastResult = ""
                                         isNewCalculation = false
                                     }
-                                    "Del" -> { // Delete last character
+                                    "C" -> { // Delete last character
                                         input = if (input.length > 1) {
                                             input.dropLast(1)
                                         } else {
                                             "0"
                                         }
                                     }
+                                    "(" -> {
+                                        if (input == "0" || isNewCalculation) {
+                                            input = "("
+                                        } else {
+                                            input += "("
+                                        }
+                                        isNewCalculation = false
+                                    }
+                                    ")" -> {
+                                        if (canAddClosingBracket(input)) {
+                                            input += ")"
+                                        }
+                                    }
+
                                     else -> {
                                         if (isNewCalculation) {
                                             if (label in listOf("+", "-", "×", "÷")) {
@@ -129,6 +143,19 @@ fun CalculatorApp() {
     }
 }
 
+// Ensure valid expression before evaluation
+fun isValidExpression(expression: String): Boolean {
+    val openBrackets = expression.count { it == '(' }
+    val closeBrackets = expression.count { it == ')' }
+    return openBrackets == closeBrackets
+}
+
+// Allow closing bracket only if it balances an opening bracket
+fun canAddClosingBracket(expression: String): Boolean {
+    val openBrackets = expression.count { it == '(' }
+    val closeBrackets = expression.count { it == ')' }
+    return openBrackets > closeBrackets
+}
 // Simple expression evaluator
 fun evaluateExpression(expression: String): String {
     return try {

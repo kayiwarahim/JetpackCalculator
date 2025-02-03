@@ -26,6 +26,8 @@ class MainActivity : ComponentActivity() {
 fun CalculatorApp() {
     var input by remember { mutableStateOf("0") }
     var result by remember { mutableStateOf("") }
+    var lastResult by remember { mutableStateOf("") } // Store last computed result
+    var isNewCalculation by remember { mutableStateOf(false) } // Track if new calculation started
 
     Column(
         modifier = Modifier
@@ -57,11 +59,11 @@ fun CalculatorApp() {
             verticalArrangement = Arrangement.Bottom
         ) {
             val buttons = listOf(
+                listOf("(", ")", "Clear", "Del"),
                 listOf("7", "8", "9", "÷"),
                 listOf("4", "5", "6", "×"),
                 listOf("1", "2", "3", "-"),
-                listOf(".", "0", "=", "+"),
-                listOf("Clear", "Del") // Added "Del" button
+                listOf(".", "0", "=", "+")
             )
 
             buttons.forEach { row ->
@@ -78,25 +80,53 @@ fun CalculatorApp() {
                                             val expression = input
                                                 .replace('×', '*')
                                                 .replace('÷', '/')
-                                            result = evaluateExpression(expression)
+                                            val computedResult = evaluateExpression(expression)
+                                            result = computedResult
+                                            lastResult = computedResult // Store result for next operation
+                                            isNewCalculation = true // Mark as new calculation
                                         } catch (e: Exception) {
                                             result = "Error"
                                         }
                                     }
-                                    "Clear" -> {
+                                    "AC" -> {
                                         input = "0"
                                         result = ""
+                                        lastResult = ""
+                                        isNewCalculation = false
                                     }
-                                    "Del" -> { // Delete last character
+                                    "C" -> { // Delete last character
                                         input = if (input.length > 1) {
                                             input.dropLast(1)
                                         } else {
                                             "0"
                                         }
                                     }
+                                    "(" -> {
+                                        if (input == "0" || isNewCalculation) {
+                                            input = "("
+                                        } else {
+                                            input += "("
+                                        }
+                                        isNewCalculation = false
+                                    }
+                                    ")" -> {
+                                        if (canAddClosingBracket(input)) {
+                                            input += ")"
+                                        }
+                                    }
+
                                     else -> {
-                                        if (input == "0") input = label
-                                        else input += label
+                                        if (isNewCalculation) {
+                                            if (label in listOf("+", "-", "×", "÷")) {
+                                                input = "$lastResult$label" // Continue from result
+                                            } else {
+                                                input = label // Start fresh
+                                            }
+                                            isNewCalculation = false
+                                        } else {
+                                            if (input == "0") input = label
+                                            else input += label
+                                        }
                                     }
                                 }
                             },
@@ -113,6 +143,19 @@ fun CalculatorApp() {
     }
 }
 
+// Ensure valid expression before evaluation
+fun isValidExpression(expression: String): Boolean {
+    val openBrackets = expression.count { it == '(' }
+    val closeBrackets = expression.count { it == ')' }
+    return openBrackets == closeBrackets
+}
+
+// Allow closing bracket only if it balances an opening bracket
+fun canAddClosingBracket(expression: String): Boolean {
+    val openBrackets = expression.count { it == '(' }
+    val closeBrackets = expression.count { it == ')' }
+    return openBrackets > closeBrackets
+}
 // Simple expression evaluator
 fun evaluateExpression(expression: String): String {
     return try {
