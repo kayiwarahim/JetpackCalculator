@@ -59,7 +59,7 @@ fun CalculatorApp() {
             verticalArrangement = Arrangement.Bottom
         ) {
             val buttons = listOf(
-                listOf("(", ")", "AC", "C"),
+                listOf("(", ")", "AC", "⌫"),
                 listOf("7", "8", "9", "÷"),
                 listOf("4", "5", "6", "×"),
                 listOf("1", "2", "3", "-"),
@@ -94,7 +94,7 @@ fun CalculatorApp() {
                                         lastResult = ""
                                         isNewCalculation = false
                                     }
-                                    "C" -> { // Delete last character
+                                    "⌫" -> { // Delete last character
                                         input = if (input.length > 1) {
                                             input.dropLast(1)
                                         } else {
