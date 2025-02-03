@@ -26,8 +26,6 @@ class MainActivity : ComponentActivity() {
 fun CalculatorApp() {
     var input by remember { mutableStateOf("0") }
     var result by remember { mutableStateOf("") }
-    var lastResult by remember { mutableStateOf("") } // Store last computed result
-    var isNewCalculation by remember { mutableStateOf(false) } // Track if new calculation started
 
     Column(
         modifier = Modifier
@@ -80,10 +78,7 @@ fun CalculatorApp() {
                                             val expression = input
                                                 .replace('×', '*')
                                                 .replace('÷', '/')
-                                            val computedResult = evaluateExpression(expression)
-                                            result = computedResult
-                                            lastResult = computedResult // Store result for next operation
-                                            isNewCalculation = true // Mark as new calculation
+                                            result = evaluateExpression(expression)
                                         } catch (e: Exception) {
                                             result = "Error"
                                         }
@@ -91,8 +86,6 @@ fun CalculatorApp() {
                                     "Clear" -> {
                                         input = "0"
                                         result = ""
-                                        lastResult = ""
-                                        isNewCalculation = false
                                     }
                                     "Del" -> { // Delete last character
                                         input = if (input.length > 1) {
@@ -102,17 +95,8 @@ fun CalculatorApp() {
                                         }
                                     }
                                     else -> {
-                                        if (isNewCalculation) {
-                                            if (label in listOf("+", "-", "×", "÷")) {
-                                                input = "$lastResult$label" // Continue from result
-                                            } else {
-                                                input = label // Start fresh
-                                            }
-                                            isNewCalculation = false
-                                        } else {
-                                            if (input == "0") input = label
-                                            else input += label
-                                        }
+                                        if (input == "0") input = label
+                                        else input += label
                                     }
                                 }
                             },
