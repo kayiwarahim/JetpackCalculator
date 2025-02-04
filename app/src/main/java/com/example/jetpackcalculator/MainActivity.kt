@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -132,9 +133,10 @@ fun CalculatorApp() {
                             },
                             modifier = Modifier
                                 .padding(8.dp)
-                                .weight(1f)
+                                .weight(1f),
+                            shape = CircleShape
                         ) {
-                            Text(label, fontSize = 24.sp)
+                            Text(label, fontSize = 22.sp)
                         }
                     }
                 }
