@@ -183,7 +183,7 @@ fun evaluateExpression(expression: String): String {
         val result = ExpressionBuilder(sanitizedExpression).build().evaluate()
 
         // Convert result to BigDecimal for precision
-        BigDecimal(result).stripTrailingZeros().toPlainString()
+        BigDecimal(result).setScale(15, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
     } catch (e: Exception) {
         "Error" // Handle evaluation errors
     }
