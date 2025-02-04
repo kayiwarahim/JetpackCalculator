@@ -13,22 +13,33 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.objecthunter.exp4j.*
+import java.math.BigDecimal
+import java.math.RoundingMode
 
+// Main activity where the Jetpack Compose UI is rendered
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CalculatorApp()
+            CalculatorApp() // Loads the Calculator UI
         }
     }
 }
 
+// Composable function that represents the entire calculator UI
 @Composable
 fun CalculatorApp() {
+    // Stores user input (expression)
     var input by remember { mutableStateOf("0") }
+
+    // Stores calculated result
     var result by remember { mutableStateOf("") }
-    var lastResult by remember { mutableStateOf("") } // Store last computed result
-    var isNewCalculation by remember { mutableStateOf(false) } // Track if new calculation started
+
+    // Stores last computed result to allow chaining operations
+    var lastResult by remember { mutableStateOf("") }
+
+    // Indicates if a new calculation is starting (helps in clearing previous results)
+    var isNewCalculation by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -37,28 +48,29 @@ fun CalculatorApp() {
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Display Area
+        // Display Area: Shows user input and computed result
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.End
         ) {
             Text(
-                text = input,
+                text = input, // Display user-entered expression
                 fontSize = 32.sp,
                 modifier = Modifier.padding(8.dp)
             )
             Text(
-                text = result,
+                text = result, // Display computed result
                 fontSize = 24.sp,
                 modifier = Modifier.padding(8.dp)
             )
         }
 
-        // Buttons Section
+        // Buttons Section: Defines calculator buttons
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.Bottom
         ) {
+            // Define calculator button layout
             val buttons = listOf(
                 listOf("(", ")", "AC", "⌫"),
                 listOf("7", "8", "9", "÷"),
@@ -67,6 +79,7 @@ fun CalculatorApp() {
                 listOf(".", "0", "=", "+")
             )
 
+            // Iterate over button rows
             buttons.forEach { row ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -78,18 +91,21 @@ fun CalculatorApp() {
                                 when (label) {
                                     "=" -> {
                                         try {
+                                            // Convert operators to standard format
                                             val expression = input
                                                 .replace('×', '*')
                                                 .replace('÷', '/')
+
+                                            // Evaluate expression and store the result
                                             val computedResult = evaluateExpression(expression)
                                             result = computedResult
-                                            lastResult = computedResult // Store result for next operation
-                                            isNewCalculation = true // Mark as new calculation
+                                            lastResult = computedResult // Store for chaining
+                                            isNewCalculation = true // Mark for fresh input
                                         } catch (e: Exception) {
-                                            result = "Error"
+                                            result = "Error" // Handle invalid expressions
                                         }
                                     }
-                                    "AC" -> {
+                                    "AC" -> { // Clear everything
                                         input = "0"
                                         result = ""
                                         lastResult = ""
@@ -102,7 +118,7 @@ fun CalculatorApp() {
                                             "0"
                                         }
                                     }
-                                    "(" -> {
+                                    "(" -> { // Handle opening bracket
                                         if (input == "0" || isNewCalculation) {
                                             input = "("
                                         } else {
@@ -110,12 +126,11 @@ fun CalculatorApp() {
                                         }
                                         isNewCalculation = false
                                     }
-                                    ")" -> {
+                                    ")" -> { // Handle closing bracket
                                         if (canAddClosingBracket(input)) {
                                             input += ")"
                                         }
                                     }
-
                                     else -> {
                                         if (isNewCalculation) {
                                             if (label in listOf("+", "-", "×", "÷")) {
@@ -125,8 +140,8 @@ fun CalculatorApp() {
                                             }
                                             isNewCalculation = false
                                         } else {
-                                            if (input == "0") input = label
-                                            else input += label
+                                            if (input == "0") input = label // Replace default 0
+                                            else input += label // Append input
                                         }
                                     }
                                 }
@@ -134,7 +149,7 @@ fun CalculatorApp() {
                             modifier = Modifier
                                 .padding(8.dp)
                                 .weight(1f),
-                            shape = CircleShape
+                            shape = CircleShape // Make buttons circular
                         ) {
                             Text(label, fontSize = 22.sp)
                         }
@@ -145,30 +160,36 @@ fun CalculatorApp() {
     }
 }
 
-// Ensure valid expression before evaluation
+// Function to ensure valid expression before evaluation
 fun isValidExpression(expression: String): Boolean {
     val openBrackets = expression.count { it == '(' }
     val closeBrackets = expression.count { it == ')' }
-    return openBrackets == closeBrackets
+    return openBrackets == closeBrackets // Ensures balanced brackets
 }
 
-// Allow closing bracket only if it balances an opening bracket
+// Allow adding closing bracket only if there's an unmatched opening bracket
 fun canAddClosingBracket(expression: String): Boolean {
     val openBrackets = expression.count { it == '(' }
     val closeBrackets = expression.count { it == ')' }
     return openBrackets > closeBrackets
 }
-// Simple expression evaluator
+
+// Function to evaluate the mathematical expression
 fun evaluateExpression(expression: String): String {
     return try {
         val sanitizedExpression = expression.replace('×', '*').replace('÷', '/')
+
+        // Use Exp4j to evaluate as double
         val result = ExpressionBuilder(sanitizedExpression).build().evaluate()
-        result.toString()
+
+        // Convert result to BigDecimal for precision
+        BigDecimal(result).stripTrailingZeros().toPlainString()
     } catch (e: Exception) {
-        "Error"
+        "Error" // Handle evaluation errors
     }
 }
 
+// Preview function for Jetpack Compose UI
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
