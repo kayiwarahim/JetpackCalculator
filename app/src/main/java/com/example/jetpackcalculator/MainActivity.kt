@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -59,7 +60,7 @@ fun CalculatorApp() {
             verticalArrangement = Arrangement.Bottom
         ) {
             val buttons = listOf(
-                listOf("(", ")", "AC", "C"),
+                listOf("(", ")", "AC", "⌫"),
                 listOf("7", "8", "9", "÷"),
                 listOf("4", "5", "6", "×"),
                 listOf("1", "2", "3", "-"),
@@ -94,7 +95,7 @@ fun CalculatorApp() {
                                         lastResult = ""
                                         isNewCalculation = false
                                     }
-                                    "C" -> { // Delete last character
+                                    "⌫" -> { // Delete last character
                                         input = if (input.length > 1) {
                                             input.dropLast(1)
                                         } else {
@@ -132,9 +133,10 @@ fun CalculatorApp() {
                             },
                             modifier = Modifier
                                 .padding(8.dp)
-                                .weight(1f)
+                                .weight(1f),
+                            shape = CircleShape
                         ) {
-                            Text(label, fontSize = 24.sp)
+                            Text(label, fontSize = 22.sp)
                         }
                     }
                 }
